@@ -1,0 +1,39 @@
+# daty — Codex 프로젝트 설정 예시
+#
+# 사용법(MIGRATION.md 3절): 내용을 확인한 뒤 `.codex/config.toml`로 복사하거나, 개인 설정 `~/.codex/config.toml`에 옮긴다.
+# 프로젝트 `.codex/` 설정·hooks는 Codex에서 이 프로젝트를 "trusted"로 표시해야 읽힌다.
+# 비밀 값(토큰·API 키)은 이 파일에 쓰지 않는다. 환경 변수 이름만 적고 값은 셸이나 OS 키체인에 둔다.
+# 키 이름은 2026-11 기준 Codex 문서를 바탕으로 썼다. 적용 전에 https://developers.openai.com/codex/config-reference 로 확인한다.
+
+# AGENTS.md는 기본 32KiB까지만 읽힌다. 지금 AGENTS.md는 그 안에 들어가지만, 늘릴 계획이면 올린다.
+# project_doc_max_bytes = 65536
+
+# AGENTS.md가 없는 하위 폴더에서 CLAUDE.md를 대신 읽게 하려면(지금은 루트에 AGENTS.md가 있어 필요 없다)
+# project_doc_fallback_filenames = ["CLAUDE.md"]
+
+# ---------------------------------------------------------------------------
+# MCP 서버 — Claude Code 세션에서 쓰던 claude.ai 커넥터 중 이 프로젝트와 관계있는 것만.
+# 원격(HTTP) 서버는 OAuth를 쓰면 `codex mcp login <이름>`으로 로그인한다.
+# ---------------------------------------------------------------------------
+
+# GitHub: PR·이슈·Actions 로그. 토큰은 환경 변수 GITHUB_PAT에(저장소 elepaong/daty 권한만 준 fine-grained PAT 권장)
+[mcp_servers.github]
+url = "https://api.githubcopilot.com/mcp/"
+bearer_token_env_var = "GITHUB_PAT"
+
+# Figma: 디자인 원본(파일 7Qc5QDKQEeFWbnAeSbhEA7) 읽기. OAuth 로그인
+[mcp_servers.figma]
+url = "https://mcp.figma.com/mcp"
+
+# Vercel: 프론트 배포 상태·빌드 로그·런타임 로그. OAuth 로그인
+[mcp_servers.vercel]
+url = "https://mcp.vercel.com"
+
+# Cloudflare: R2 버킷 확인(사진 버킷, 백업 버킷). OAuth 로그인. 버킷 삭제 같은 도구는 승인 후에만
+[mcp_servers.cloudflare]
+url = "https://mcp.cloudflare.com/mcp"
+
+# (선택) Playwright: 세 디자인 × 밝기 모드 × 폭별 화면 확인. 로컬 stdio 서버
+# [mcp_servers.playwright]
+# command = "npx"
+# args = ["-y", "@playwright/mcp@latest"]
