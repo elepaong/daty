@@ -10,7 +10,7 @@
 
 | 대상 | 있음? | 내용 |
 |---|---|---|
-| `CLAUDE.md`(루트) | ✅ | 28KB 한국어 명세: 구조, 스택, 디자인 규칙, 인프라, 데이터 모델, API 전체, 업로드 패턴, 작업 규칙. **Claude 전용 문법은 없다**(`@import`, 슬래시 명령 같은 것 없음) |
+| `CLAUDE.md`(루트) | ✅ | (이전 당시) 28KB 한국어 명세: 구조, 스택, 디자인 규칙, 인프라, 데이터 모델, API 전체, 업로드 패턴, 작업 규칙. **Claude 전용 문법은 없다**(`@import`, 슬래시 명령 같은 것 없음) |
 | `.claude/` 디렉터리(저장소) | ❌ | 없다. git 이력에도 없다 → 저장소에 settings.json, commands, agents, hooks, skills가 없다 |
 | `.mcp.json` | ❌ | 없다 |
 | `frontend/CLAUDE.md` 등 하위 폴더 메모리 | ❌ | 없다(`frontend/README.md`는 일반 문서) |
@@ -28,7 +28,7 @@
 ### 그대로 재사용
 | 항목 | 방법 |
 |---|---|
-| `CLAUDE.md`의 내용 | 지운다거나 고치지 않는다. Codex는 `AGENTS.md`를 읽으므로 핵심 규칙을 `AGENTS.md`로, 설계 맥락을 `PROJECT_CONTEXT.md`로 다시 정리했다. API 세부 명세는 `CLAUDE.md`를 원본으로 계속 참조한다(AGENTS.md가 가리킴) |
+| `CLAUDE.md`의 내용 | 버린 내용은 없다. 규칙은 `AGENTS.md`로 옮기고, 설계 맥락은 `PROJECT_CONTEXT.md`로 정리했다. API·데이터 모델·업로드·인프라·프론트 세부 동작은 `CLAUDE.md`에 그대로 남겨 상세 레퍼런스로 쓴다(AGENTS.md가 가리킴). 5절 참고 |
 | `docs/operations.md`, `docs/password-reset.md`, README | 도구와 무관. 그대로 |
 | CI(`ci.yml`), 배포(`deploy-backend.yml`), Dependabot | 도구와 무관. 그대로 |
 | 빌드·테스트 명령, 로컬 DB(`compose.yaml`) | 그대로. `AGENTS.md` 2절 |
@@ -122,14 +122,19 @@ cp .codex/hooks.example.json .codex/hooks.json
 
 ---
 
-## 5. 문서를 어떻게 유지할지 (결정 필요)
+## 5. 문서 역할 (적용 완료)
 
-지금은 `CLAUDE.md`(상세 원본)와 `AGENTS.md`(요약 규칙)가 함께 있다. 두 도구를 같이 쓸 동안 내용이 어긋나지 않게 하는 방법은 둘 중 하나다.
+권장안대로 정리했다.
 
-1. **권장:** 규칙의 원본을 `AGENTS.md`로 정하고, `CLAUDE.md`에는 맨 위에 `@AGENTS.md`(Claude Code의 파일 가져오기 문법)를 두고 API 상세만 남긴다. Codex는 `AGENTS.md`, Claude Code는 둘 다 읽는다
-2. Codex로 완전히 옮긴 뒤 `CLAUDE.md`의 API 상세를 `docs/api.md`로 옮기고 `CLAUDE.md`는 지운다
+| 파일 | 역할 | 누가 읽나 |
+|---|---|---|
+| `AGENTS.md` | **규칙의 원본**: 구조, 스택, 빌드·테스트, Git·PR, 백엔드·프론트 컨벤션, 금지 사항, Skills 목록 | Codex(자동), Claude Code(`CLAUDE.md`의 `@AGENTS.md`로 자동) |
+| `CLAUDE.md` | 맨 위 `@AGENTS.md` + **상세 레퍼런스**: 프론트 세부 동작, 인프라, 데이터 모델, API, 이미지 업로드 패턴. 규칙은 다시 쓰지 않는다 | Claude Code(자동), Codex(AGENTS.md가 가리켜서 필요할 때) |
+| `PROJECT_CONTEXT.md` | 목적·아키텍처·기술 선택 이유 | 둘 다 |
 
-어느 쪽이든 **이번 작업에서는 `CLAUDE.md`를 고치지 않았다**(요청: 기존 파일 수정 금지).
+- `CLAUDE.md`에서 뺀 것은 `AGENTS.md`와 겹치던 규칙(디자인 토큰·세 디자인·밝기 모드·접근성·다국어·모달·확인창·반응형 기준·ESM·작업 규칙)뿐이다. 거기에만 있던 세부(데스크톱에서 장소 상세가 열리는 자리, 언어·디자인 토글 위치, 스크랩북 팔레트, Maps·서비스 워커·저장 동작, 개발 프록시, Figma 노드)는 `CLAUDE.md` "프론트엔드 세부 동작"에 남겼다
+- 규칙을 바꿀 때는 `AGENTS.md`, 동작·API를 바꿀 때는 `CLAUDE.md`를 고친다
+- Codex로 완전히 옮긴 뒤 Claude Code를 더 쓰지 않으면, `CLAUDE.md`의 상세를 `docs/reference.md` 같은 이름으로 옮기고 `AGENTS.md`의 링크를 바꾼 뒤 `CLAUDE.md`를 지워도 된다
 
 ---
 

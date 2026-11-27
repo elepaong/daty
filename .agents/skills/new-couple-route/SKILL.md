@@ -15,5 +15,5 @@ description: daty 백엔드에 커플 소유 데이터(장소·기록·앨범·�
 8. 테스트(`backend/test/`): 헬퍼 `resetDatabase`, `startServer`, `Client`, `coupleMember`(`test/helpers.ts`)
    - 정상 동작 테스트를 영역 파일에 추가
    - **`test/couple-scope.test.ts`에 다른 커플의 id로 접근하면 404인 경우를 추가**
-9. `CLAUDE.md`의 API 절과 `PROJECT_CONTEXT.md` 6절을 갱신
+9. `CLAUDE.md`의 API 절(상세 레퍼런스)과 `PROJECT_CONTEXT.md` 6절을 갱신
 10. `npm run build && npm test`

@@ -36,7 +36,7 @@
 ### 문서 불일치
 5. ⬜ `README.md`/`README.ja.md`의 "디자인 두 벌" → 세 벌(스크랩북 추가 반영 안 됨)
 6. ⬜ CI 설명: `docs/operations.md`는 "프론트 lint·build"라고 쓰지만 `ci.yml`은 `npm test`도 돌린다
-7. ⬜ `CLAUDE.md`와 `AGENTS.md`/`PROJECT_CONTEXT.md`를 함께 유지할지, `CLAUDE.md`를 AGENTS.md를 가리키는 얇은 파일로 바꿀지 결정(`MIGRATION.md` 5절)
+7. ✅ `CLAUDE.md`와 `AGENTS.md`의 역할 정리: 규칙은 `AGENTS.md`, `CLAUDE.md`는 `@AGENTS.md`를 가져오고 상세 레퍼런스만(`MIGRATION.md` 5절)
 
 ### 코드 정리 후보 (동작 변경 없음, 급하지 않음)
 8. ⬜ 프론트 `src/lib/types.ts`의 `TipType`은 예전 `tipType` 컬럼 이름이 남은 것. 지금은 메모 태그 토큰 뜻으로만 쓰인다 — 이름만 정리할지 검토
@@ -68,5 +68,5 @@
 - [ ] 44px 터치 영역, 모달은 `useDialogFocus`, 확인은 `useConfirm`
 - [ ] API 응답 모양을 바꾸면 프론트가 옛 응답도 처리
 - [ ] 짝꿍에게 알릴 일이면 `notifyPartner`(테스트에서는 `pushOutbox`)
-- [ ] 동작이 바뀌면 `CLAUDE.md`·`PROJECT_CONTEXT.md` 갱신
+- [ ] 동작이 바뀌면 `CLAUDE.md`(상세)·`PROJECT_CONTEXT.md` 갱신, 규칙이 바뀌면 `AGENTS.md`
 - [ ] `frontend`: lint·test·build, `backend`: build·test

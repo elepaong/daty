@@ -1,33 +1,19 @@
 # daty
 
-데이트 기록 앱. 핵심 뷰는 지도/저널, 캘린더, 앨범 세 가지.
+@AGENTS.md
 
-## 저장소 구조 (모노레포)
+> 개발 규칙·컨벤션·빌드와 테스트 방법의 원본은 위에서 가져오는 `AGENTS.md`다(Claude Code와 Codex가 함께 쓴다). 이 파일에는 규칙을 다시 쓰지 않고, `AGENTS.md`에 다 담기지 않는 **상세 레퍼런스**(프론트 세부 동작, 인프라, 데이터 모델, API, 업로드 패턴)만 둔다. 규칙을 바꿀 때는 `AGENTS.md`를, 동작·API를 바꿀 때는 이 파일을 고친다. 설계 배경은 `PROJECT_CONTEXT.md`.
 
-- `frontend/` — React 19 + Vite + TypeScript + Tailwind CSS v4 (`@tailwindcss/vite` 플러그인, PostCSS 설정 없음)
-  - React Router(탭 3개: `/`, `/calendar`, `/albums` + 하위 화면 `/places/:id`, `/places/:id/edit`, `/albums/:id`, `/recap`(연말 결산, 앨범 탭 아래). 로그인 없이 열리는 `/reset-password?token=`(메일 링크)은 로그인 게이트보다 앞에 있다. 하위 화면에서도 해당 탭이 활성 표시된다), TanStack Query(`src/lib/queries.ts`), 지도는 `@vis.gl/react-google-maps`
-  - 736px(`md`, `index.css`에서 46rem으로 낮춤 — 세로로 든 iPad mini가 744px) 미만은 폰 폭 한 열 + 하단 탭, 이상은 왼쪽 `Sidebar` + 넓은 화면(`useIsDesktop`, 나머지는 `md:` 클래스). 태블릿 폭(`md`~`lg` 1024px)에서는 `Sidebar`가 아이콘만 있는 76px 레일(탭·일정 추가·내 정보)이 되고 언어 토글은 화면 헤더에 남는다. `lg:`는 사이드바를 넓히는 등 1024px부터만 맞는 것에만 쓴다. 데스크톱에서 `/places/:id`는 지도 탭 왼쪽 열에 열리고(지도는 그대로), 바텀시트는 가운데 모달이 된다
-  - Google Maps JS는 `MapsProvider`(`src/lib/maps.tsx`)가 앱 전체에 한 번 로드한다. 지도와 장소 검색(Places API New, 자동완성 세션 토큰 사용)이 함께 쓴다. 지도 지역(`region`)·검색에서 우선할 나라·장소가 없을 때의 처음 중심은 기기 시간대(없으면 앱 언어)로 정한다: 일본이면 JP·도쿄, 아니면 KR·서울(`src/lib/home.ts`). 장소 상세 위쪽 사진도 `googlePlaceId`로 Google 장소 사진을 받아 쓰고(`PlaceHero`, 작성자 표시 필수), 없으면 앨범 표지 → 카테고리 타일
-  - 디자인 토큰(색상·글꼴·그림자)은 `src/index.css`의 `@theme`에 있다. 새 색을 하드코딩하지 말고 토큰을 쓴다 (`bg-brand-strong`, `text-muted`, `font-display` 등). 브랜드색 `brand`(#00A896)는 흰 글자와 대비가 3:1이 안 되므로 점·막대·테두리 같은 장식에만 쓰고, 글자색과 글자·아이콘이 올라가는 배경은 `brand-strong`(hover는 `brand-deep`)을 쓴다
-  - 44px보다 작은 버튼은 모양은 그대로 두고 `ui-hit`(혼자 있는 버튼, 가로세로 44px) 또는 `ui-hit-y`(나란히 붙은 버튼, 높이만 44px)로 누를 수 있는 영역을 넓힌다(`::after`, `absolute` 요소에는 쓰지 않는다)
-  - 밝기 모드(자동·밝게·어둡게)는 디자인과 따로 기기마다 고른다(`src/lib/colorMode.ts`, 내 정보 시트, `<html data-mode="light|dark">`). 어두운 모드는 `index.css`의 `:root[data-mode="dark"]`가 같은 색 토큰을 바꿔서 그린다. 그래서 카드·시트·입력창 배경은 `bg-white` 대신 `bg-surface`, 청록 글자는 `text-brand-text`(밝은 모드에서는 `brand-strong`과 같은 색), 사진 뷰어·사진 위 덧칠처럼 늘 어두워야 하는 곳은 `bg-night`를 쓴다. 색 채움 위 흰 글자(`text-white`)와 사진 위 `bg-white/15`는 그대로 둔다. Google 지도는 밝은 채로 둔다
-  - 디자인이 세 벌이다: 기본(classic), 도트(retro), 스크랩북(scrap). 기기마다 고르며 처음에는 기본이고, 로그인·커플 연결 화면 오른쪽 위와 사이드바·내 정보에서 바꾼다(localStorage, `<html data-theme>`, `src/lib/theme.ts`). 여러 곳에 쓰는 모양은 세 디자인을 함께 담은 `ui-*` 클래스(`ui-card`, `ui-chip`, `ui-title` 등, `index.css` 아래쪽)를 쓰고, 한 곳만 다른 건 `retro:` / `scrap:` 변형으로 쓴다. 스크랩북은 모양보다 토큰을 바꾼다(`index.css`의 `[data-theme="scrap"]`: 크라프트지 바탕, 갈색 잉크, 청록 자리에 토마토색, 코랄 자리에 분홍, 제목은 손글씨 Gaegu·일본어 Yomogi). 그래서 색을 토큰으로 쓰면 스크랩북에도 그대로 맞고, 마스킹 테이프 색(`tape-*`)은 밝기 모드와 상관없이 같다. 어두운 모드는 `:root[data-theme="scrap"][data-mode="dark"]`. 코드에서 디자인을 가르는 건 아이콘·핀·마스코트처럼 그림이 다른 곳뿐이다(`useIsRetro`, `PixelSprite`). 도트 디자인에서는 기본 글꼴이 Galmuri로 바뀌고 모서리·그림자가 전역으로 각지므로, 메모·노트처럼 긴 글에는 `ui-prose`를 붙인다. 픽셀 테두리만 필요하면 도트 전용 `ui-box`/`ui-btn`/`ui-outline` 등을 기존 클래스 옆에 붙인다. 애니메이션은 `useMotionPreset()`(도트는 계단식 easing, 화면 와이프, 대화창처럼 펼쳐지는 시트)과 `RISE_IN`을 쓴다
-  - 기념일(시작일이 1일째, 100일마다, 매년)은 `src/lib/anniversary.ts`의 `milestonesOn`으로 센다(백엔드 아침 알림 `src/lib/digest.ts`와 같은 규칙). 캘린더 날짜 칸과 그날 타임라인에 보인다
-  - 화면은 `src/features/<화면>/`, 공용 UI는 `src/components/`, API·타입·날짜 유틸은 `src/lib/`
-  - 한국어/일본어 지원. 화면 문구는 하드코딩하지 않고 `src/lib/messages.ts`의 `ko`와 `ja` 양쪽에 넣은 뒤 `useT()`로 쓴다(`ja`는 `Messages` 타입이라 키가 빠지면 빌드가 깨진다). 언어는 헤더 오른쪽 위 토글로 바꾸고 기기(localStorage)에 기억한다. Google 지도 타일 언어는 페이지를 처음 열 때 언어로 고정된다
-  - 서비스 워커(`public/sw.js`, 빌드 도구 없이 손으로 쓴 파일)가 앱 껍데기(페이지·해시된 `/assets/*`·아이콘)를 캐시하고 웹 푸시를 띄운다. 오프라인 읽기를 위해 `/api` GET은 네트워크 우선으로 마지막 응답을 `daty-api-v1`에 두고(내보내기·다운로드 링크 제외, 오프라인 응답에는 `x-daty-offline`), 썸네일·프로필 사진은 경로 기준으로 `daty-thumbs-v1`에 400개까지 둔다(CORS로 읽어서, 원본·동영상은 두지 않음). 로그아웃·커플 전환 때 `clearOfflineData`(`src/lib/offline.ts`)가 둘 다 비운다. React Query는 `networkMode: offlineFirst`라 오프라인에서도 요청이 서비스 워커까지 가고, 화면 위에 오프라인 띠가 뜬다. 푸시 구독은 `src/lib/push.ts`, 설정 화면은 내 정보 시트(`NotificationSettings`)
-  - 모달(시트·확인창·사진 뷰어)은 `useDialogFocus`(`src/lib/useDialogFocus.ts`)로 열 때 포커스를 안으로 옮기고, Tab을 가두고, Escape를 받고, 닫으면 연 버튼으로 포커스를 돌린다. 겹쳐 열리면 맨 위 것만 반응한다. 키보드 포커스 표시는 `index.css`의 전역 `:focus-visible`(자체 포커스 테두리가 있는 입력창만 `outline-none`)
-  - 확인창은 `window.confirm` 대신 `useConfirm()`(`src/lib/confirm.ts`, `ConfirmProvider`가 앱 전체에 하나 띄운다)을 쓴다: `if (await confirm({ title, message?, confirmLabel, danger? }))`. 삭제는 `danger`(빨간 버튼)
-  - 사진·장소 메모의 반응·댓글은 `FeedbackPanel`(`useFeedback`) 하나로 그린다. 파일 저장은 `useSaveFiles`(`src/lib/useSaveFiles.ts`, `src/lib/download.ts`)가 브라우저에 맞게 고른다: 공유 가능한 터치 기기는 10개(또는 150MB)씩 받아 두고 "사진에 저장" 탭으로 공유 시트를 연다(공유는 사용자 탭에서만 열린다), 데스크톱 Chrome/Edge는 고른 폴더에 3개씩 스트리밍으로 쓴다, 그 밖에는 숨은 iframe으로 attachment 링크를 연다. 앞의 둘은 R2를 fetch로 읽으므로 버킷 CORS에 `GET`이 필요하고, 막히면 iframe으로 돌아간다
-  - 개발 중에는 Vite가 `/api`를 `127.0.0.1:4000`(백엔드)으로 프록시한다. 운영 빌드는 `VITE_API_URL`
-  - 디자인 원본: Figma `7Qc5QDKQEeFWbnAeSbhEA7` (지도 `1:797`, 캘린더 `1:538`, 앨범 `1:329`, 일정 등록 `1:2`, 장소 상세 `17:1531`, 장소 수정 `17:1598`, 일정 수정 `17:1684`, 앨범 상세 `17:1807`)
-- `backend/` — Express 5 + Prisma 7 (PostgreSQL) + TypeScript (ESM, `NodeNext`). 개발 실행은 `tsx`, 환경 변수 검증과 요청 검증은 `zod`
-  - `src/server.ts` 진입점, `src/app.ts` 앱 구성, `src/modules/` 라우터(`*.routes.ts`), `src/lib/` 공용 로직, `src/middlewares/` 공통 미들웨어, `src/config/env.ts` 환경 변수
-  - Prisma Client는 `prisma-client` 생성기로 `src/generated/prisma`에 생성되며 커밋하지 않는다 (`npm install` 시 자동 생성). `@prisma/adapter-pg` 드라이버 어댑터 사용
-  - ESM이므로 상대 경로 import에는 `.js` 확장자를 붙인다
-- 프론트와 백엔드가 같이 쓰는 API 타입이 생기면 `shared/`로 분리를 검토
+## 프론트엔드 세부 동작
 
-각 패키지는 자기 디렉토리에서 독립적으로 `npm install` / `npm run ...` 한다. 루트에는 package.json이 없다.
+- 데스크톱(736px 이상)에서 `/places/:id`는 지도 탭 왼쪽 열에 열리고(지도는 그대로), 바텀시트는 가운데 모달이 된다. 하위 화면에서도 해당 탭이 활성 표시된다
+- 언어는 헤더 오른쪽 위 토글로 바꾸고 기기(localStorage)에 기억한다. 첫 방문은 브라우저 언어를 따른다. Google 지도 타일 언어는 페이지를 처음 열 때 언어로 고정된다
+- 디자인은 로그인·커플 연결 화면 오른쪽 위와 사이드바·내 정보에서 바꾼다. 처음에는 기본(classic). 스크랩북은 크라프트지 바탕, 갈색 잉크, 청록 자리에 토마토색, 코랄 자리에 분홍, 제목은 손글씨 Gaegu·일본어 Yomogi이고, 어두운 모드는 `:root[data-theme="scrap"][data-mode="dark"]`. 도트 디자인은 기본 글꼴이 Galmuri로 바뀌고 모서리·그림자가 전역으로 각진다. 디자인별 지도 스타일은 `VITE_GOOGLE_MAPS_MAP_ID_RETRO` / `_SCRAP`
+- Google Maps JS는 `MapsProvider`(`src/lib/maps.tsx`)가 앱 전체에 한 번 로드한다. 지도와 장소 검색(Places API New, 자동완성 세션 토큰 사용)이 함께 쓴다. 지도 지역(`region`)·검색에서 우선할 나라·장소가 없을 때의 처음 중심은 기기 시간대(없으면 앱 언어)로 정한다: 일본이면 JP·도쿄, 아니면 KR·서울(`src/lib/home.ts`). 장소 상세 위쪽 사진도 `googlePlaceId`로 Google 장소 사진을 받아 쓰고(`PlaceHero`, 작성자 표시 필수), 없으면 앨범 표지 → 카테고리 타일
+- 서비스 워커(`public/sw.js`, 빌드 도구 없이 손으로 쓴 파일)가 앱 껍데기(페이지·해시된 `/assets/*`·아이콘)를 캐시하고 웹 푸시를 띄운다. 오프라인 읽기를 위해 `/api` GET은 네트워크 우선으로 마지막 응답을 `daty-api-v1`에 두고(내보내기·다운로드 링크 제외, 오프라인 응답에는 `x-daty-offline`), 썸네일·프로필 사진은 경로 기준으로 `daty-thumbs-v1`에 400개까지 둔다(CORS로 읽어서, 원본·동영상은 두지 않음). 로그아웃·커플 전환 때 `clearOfflineData`(`src/lib/offline.ts`)가 둘 다 비운다. React Query는 `networkMode: offlineFirst`라 오프라인에서도 요청이 서비스 워커까지 가고, 화면 위에 오프라인 띠가 뜬다. 푸시 구독은 `src/lib/push.ts`, 설정 화면은 내 정보 시트(`NotificationSettings`)
+- 사진·장소 메모의 반응·댓글은 `FeedbackPanel`(`useFeedback`) 하나로 그린다. 파일 저장은 `useSaveFiles`(`src/lib/useSaveFiles.ts`, `src/lib/download.ts`)가 브라우저에 맞게 고른다: 공유 가능한 터치 기기는 10개(또는 150MB)씩 받아 두고 "사진에 저장" 탭으로 공유 시트를 연다(공유는 사용자 탭에서만 열린다), 데스크톱 Chrome/Edge는 고른 폴더에 3개씩 스트리밍으로 쓴다, 그 밖에는 숨은 iframe으로 attachment 링크를 연다. 앞의 둘은 R2를 fetch로 읽으므로 버킷 CORS에 `GET`이 필요하고, 막히면 iframe으로 돌아간다
+- 개발 중에는 Vite가 `/api`를 `127.0.0.1:4000`(백엔드)으로 프록시한다. 운영 빌드는 `VITE_API_URL`
+- 디자인 원본: Figma `7Qc5QDKQEeFWbnAeSbhEA7` (지도 `1:797`, 캘린더 `1:538`, 앨범 `1:329`, 일정 등록 `1:2`, 장소 상세 `17:1531`, 장소 수정 `17:1598`, 일정 수정 `17:1684`, 앨범 상세 `17:1807`)
 
 ## 인프라
 
@@ -104,9 +90,3 @@
 - 프론트는 업로드 전에 사진을 긴 변 2048px JPEG와 800px 썸네일로 줄이고 EXIF 촬영 시각(`takenAt`)을 읽는다(`src/lib/images.ts`, `useUploadPhotos`). 동영상은 브라우저에서 다시 인코딩하지 않고 원본 그대로 올리며, 첫 장면 썸네일·길이·촬영 시각(mvhd)만 만든다(`src/lib/videos.ts`). 업로드 URL이 10분짜리라 동영상은 하나씩 올리기 직전에 URL을 받는다. 사진·동영상 모두 한 개씩 올라가는 대로 바로 등록해서 중간에 끊겨도 올라간 만큼은 남는다. 업로드 URL 요청·R2 PUT·등록은 네트워크 끊김이나 5xx면 `withRetry`(`src/lib/api.ts`)로 두 번 더 시도한다(같은 키의 등록 재시도는 서버가 한 번만 기록한다). R2에 올라갔지만 등록되지 않은 파일은 API 프로세스 안의 하루 한 번 타이머(`src/lib/orphans.ts`)가 `couples/`와 `avatars/` 아래를 훑어, 하루 넘게 어떤 사진 행이나 프로필 사진도 가리키지 않는 것을 지운다. 업로드 중에는 Screen Wake Lock으로 화면이 꺼지지 않게 한다(`src/lib/wakeLock.ts`, 다른 앱으로 가면 웹에서는 멈춘다). 고른 파일 중 앨범에 이미 있는 것(`fingerprint`)은 올리지 않고 건너뛴다. 앱 차원의 용량 한도는 없다(R2 무료 한도 10GB를 넘으면 GB당 월 $0.015) 그리드·앨범 카드·장소 상세는 `thumbnailUrl`, 사진 뷰어는 `imageUrl`을 쓴다. 썸네일이 없는 예전 사진은 `thumbnailUrl`이 원본 URL이다
 - 브라우저가 R2에 직접 PUT하고 저장할 때 fetch로 읽으므로 버킷 CORS에 프론트 origin의 `PUT`·`GET`과 `Content-Type` 헤더를 허용해야 한다
 
-## 작업 규칙
-
-- `main`에 직접 커밋하지 않는다. 브랜치를 만들어 작업하고 PR로 병합한다.
-- 커밋 전에 해당 패키지에서 `npm run build`가 통과해야 한다. `frontend/`는 `npm run lint`와 `npm test`(Vitest, `src/**/*.test.ts`, 화면 없이 `src/lib`의 순수 로직), `backend/`는 `npm test`도 통과해야 한다.
-- 백엔드 테스트(`backend/test/`, Node 내장 테스트 러너 + tsx)는 로컬 개발 DB 컨테이너의 별도 DB `daty_test`를 쓴다(없으면 만들고 마이그레이션한 뒤 매번 비운다. 이름이 `_test`로 끝나지 않으면 거부). `.env`는 읽지 않는다. 커플 데이터 라우트를 새로 만들면 `couple-scope.test.ts`에 다른 커플의 id로 접근하는 경우를 추가한다
-- 비밀 값(R2 키, DB URL, `SESSION_SECRET` 등)은 `.env`에 두고 커밋하지 않는다. 필요한 키 목록은 `.env.example`로 남긴다.

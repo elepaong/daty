@@ -3,7 +3,8 @@
 커플이 함께 쓰는 데이트 기록 웹앱(지도/저널, 캘린더, 앨범). 실제로 배포해서 운영 중이다.
 이 파일은 Codex 같은 AI 에이전트가 **작업 전에 반드시 지킬 규칙**만 모은 것이다.
 
-- 설계·기능·API 전체 명세: `PROJECT_CONTEXT.md`, 그리고 원본 상세 명세인 `CLAUDE.md`(같은 내용을 Claude Code용으로 쓴 것, 지금도 정확하다)
+- 설계 배경·기능·아키텍처: `PROJECT_CONTEXT.md`
+- **상세 레퍼런스: `CLAUDE.md`** — API 엔드포인트별 동작, 데이터 모델, 업로드 패턴, 인프라, 프론트 세부 동작. 이 파일(`AGENTS.md`)을 `@AGENTS.md`로 가져오고 그 아래에 상세만 둔다. 이름은 Claude Code용이지만 **Codex도 API·스키마·업로드·인프라를 건드리기 전에 읽는다**
 - 지난 구현 이력과 시행착오: `DEVELOPMENT_HISTORY.md`
 - 남은 일: `ROADMAP.md`
 - 운영(백업·배포·서버 이전): `docs/operations.md`, 비밀번호 재설정 설계: `docs/password-reset.md`
@@ -85,7 +86,7 @@ R2·메일(Resend)·웹 푸시 환경 변수를 비우면 그 기능만 꺼진 �
 - 커밋 메시지: 영어, Conventional Commits 형식을 주로 쓴다(`feat:`, `fix(frontend):`, `perf(backend):`, `docs:`, `chore:`, `test:`). 제목은 사용자 입장에서 무엇이 바뀌었는지 쓰고("show every error in the user's language"), 본문에 왜·어떻게를 적는다
 - 비밀 값(R2 키, DB URL, `SESSION_SECRET`, API 키, VAPID 키, 배포 SSH 키 등)은 `.env`에만 두고 **절대 커밋하거나 문서·로그·커밋 메시지에 쓰지 않는다**. 새 환경 변수는 이름과 설명만 `.env.example`에 추가하고 `src/config/env.ts`에서 검증한다
 - 공개 저장소다. 실제 사용자 데이터·도메인 외 개인정보를 넣지 않는다
-- 동작이 바뀌면 `CLAUDE.md`(상세 명세)와 `PROJECT_CONTEXT.md`의 해당 부분도 함께 고친다. 둘이 어긋나면 코드가 기준이다
+- 문서 역할을 나눈다: **규칙**(컨벤션·금지·빌드와 테스트)은 `AGENTS.md`만, **동작·API 상세**는 `CLAUDE.md`, 설계 배경은 `PROJECT_CONTEXT.md`. `CLAUDE.md`에 규칙을 다시 쓰지 않는다(중복은 어긋난다). 동작이 바뀌면 `CLAUDE.md`와 `PROJECT_CONTEXT.md`의 해당 부분을 함께 고친다. 문서와 코드가 어긋나면 코드가 기준이다
 
 ---
 
